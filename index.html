@@ -7,35 +7,44 @@
     <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/8241/8241993.png">
     <title>EsToDoList</title>
 </head>
-<body class="p-4 ml-80 mr-80 mt-20 ">
+<body class="p-6 ml-80 mr-80 mt-8 ">
     
 <div class="flex flex-col md:w1/2 md:m-auto gap-2 m-6 p-4 shadow-2xl rounded-2xl ">
 
 <h1 class=" text-5xl  text-green-500 font-black text-center">EsToDolist</h1>
 
-<div class="mt-6 flex ">
-
-<input type="text" 
-placeholder="🔎 Pesquise sua tarefa..."
-class="bg-green-700 w-350 p-3 rounded-xl"
->
-
-<button class="m-2 border-2">
-<img src="https://e7.pngegg.com/pngimages/891/367/png-clipart-computer-icons-symbol-send-email-button-miscellaneous-blue-thumbnail.png" width="65px">
-</button>
+<div class="mt-4 flex ">
 
 </div>
 
-<div class="bg-gray-800"></div>
+<hr class="">
+
+<div class=" mt-4 h-12">
+   <input type="text"
+  class=" border-2 p-2"
+  placeholder="🔖Filtro personalizado..."
+  >
+ 
+  <button class="ml-60 border-2 p-2 bg-gray-400 hover:">TODAS</button>
+  <button class="ml-10 border-2 p-2">ATIVOS</button>
+  <button class="ml-10 border-2 p-2">EM ABERTO</button>
+  
+</div>
+
+<hr class="mt-2">
+
+<div class=" flex justify-center items-center">
 
 <input 
 type="text" 
 placeholder="Digite sua tarefa aqui..."
-class="border-2 border-green-600 rounded p-3 w-full mt-5">
+class="border-2 border-gray-800 rounded p-3 w-100 mt-5">
 
-<button class="bg-green-500 px-4 py-3 rounded mt-4 w-1/2 mx-auto text-xl font-bold">
-Adicionar
+<button>
+<img src="https://cdn-icons-png.flaticon.com/512/2985/2985071.png" width="50px" >
 </button>
+</div>
+
 
        <ul class="space-y-2 mt-4 m-8">
          <li class="flex justify-between bg-gray-800 py-2 px-4 rounded-2xl">

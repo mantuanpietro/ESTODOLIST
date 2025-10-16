@@ -9,7 +9,7 @@
 </head>
 <body class="p-6 ml-80 mr-80 mt-8 ">
     
-<div class="flex flex-col md:w1/2 md:m-auto gap-2 m-6 p-4 shadow-2xl rounded-2xl ">
+<div class="w-full max-w-sm xl:max-w-4xl flex flex-col md:w1/2 md:m-auto gap-2 m-6 p-4 shadow-2xl rounded-2xl ">
 
 <h1 class=" text-5xl  text-green-500 font-black text-center">EsToDolist</h1>
 
@@ -25,24 +25,22 @@
   placeholder="🔖Filtro personalizado..."
   >
  
-  <button class="ml-60 border-2 p-2 bg-gray-400 hover:">TODAS</button>
-  <button class="ml-10 border-2 p-2">ATIVOS</button>
-  <button class="ml-10 border-2 p-2">EM ABERTO</button>
+  <button class="ml-60 border-2 p-2 bg-gray-400 rounded-lg hover:bg-gray-200 transition">TODAS</button>
+  <button class="ml-10 border-2 p-2 rounded-lg hover:bg-gray-200 transition">ATIVOS</button>
+  <button class="ml-10 border-2 p-2 rounded-lg hover:bg-gray-200 transition">EM ABERTO</button>
   
 </div>
 
 <hr class="mt-2">
 
-<div class=" flex justify-center items-center">
-
-<input 
-type="text" 
-placeholder="Digite sua tarefa aqui..."
-class="border-2 border-gray-800 rounded p-3 w-100 mt-5">
-
-<button>
-<img src="https://cdn-icons-png.flaticon.com/512/2985/2985071.png" width="50px" >
-</button>
+<div class="flex gap-2 items-center">
+  <input class=" w-100 flex-grow p-3 rounded-xl border focus:ring-2 focus:ring-green-500 outline-none" placeholder="Adicione uma nova tarefa..." type="text">
+  <button
+          id="adicionar-btn"
+          class="flex-shrink-0 w-12 h-12 bg-green-500 hover:bg-green-600 text-white text-2xl font-bold rounded-lg transition duration-150 ease-in-out shadow-md"
+        >
+          +
+        </button>
 </div>
 
 

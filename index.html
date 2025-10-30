@@ -3,66 +3,651 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/8241/8241993.png">
-    <title>EsToDoList</title>
+    <title>EsToDoList - Produtividade</title>
+    <link rel="icon" href="https://icons.iconarchive.com/icons/iconshock/real-vista-project-managment/256/task-notes-icon.png">
+    <!-- Carregamento do Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Configuração do Tema (Inter Font) -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'primary': '#10b981', // Emerald 500
+                        'primary-dark': '#059669', // Emerald 600
+                        'high-priority': '#ef4444', // Red 500
+                        'medium-priority': '#f59e0b', // Amber 500
+                        'low-priority': '#3b82f6', // Blue 500
+                    }
+                }
+            },
+            darkMode: 'class', // Habilita a classe 'dark' para o dark mode
+        }
+    </script>
+    <!-- Estilos customizados e animações -->
+    <style>
+        /* Transição suave para cores de fundo e texto em toda a aplicação */
+        body, .app-card, input, select, textarea {
+            transition: all 500ms ease;
+        }
+        /* Classe para item de lista quando for adicionado */
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .task-enter {
+            animation: fadeInDown 0.3s ease-out;
+        }
+        /* Classe para input focado */
+        .input-focus {
+            @apply focus:ring-2 focus:ring-primary focus:border-primary-dark;
+        }
+    </style>
 </head>
-<body class="p-6 ml-80 mr-80 mt-8 ">
+
+<body class="min-h-screen flex justify-center items-start py-10 px-4 bg-gray-50 dark:bg-gray-900 font-sans">
+
+    <div class="app-card w-full max-w-4xl bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-6 sm:p-10">
+
+        <!-- Header e Modo Escuro -->
+        <header class="flex justify-between items-center mb-8 pb-4 border-b border-gray-200 dark:border-gray-700">
+            <h1 class="text-4xl sm:text-5xl font-extrabold text-primary dark:text-primary tracking-tight">
+                EsToDoList
+            </h1>
+            <button id="toggle-mode" class="flex items-center space-x-2 p-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 font-medium text-sm transition-colors duration-300 shadow-md">
+                <span id="mode-icon">🌙</span>
+                <span id="mode-text">Escuro</span>
+            </button>
+        </header>
+
+        <!-- Contadores de Status -->
+        <div class="flex flex-wrap justify-between gap-4 mb-8">
+            <div class="flex-1 min-w-[45%] p-3 bg-blue-100 dark:bg-blue-900/50 rounded-xl shadow-md">
+                <p class="text-sm font-semibold text-blue-800 dark:text-blue-200">PENDENTES</p>
+                <p id="pending-count" class="text-3xl font-bold text-blue-900 dark:text-blue-100">0</p>
+            </div>
+            <div class="flex-1 min-w-[45%] p-3 bg-green-100 dark:bg-green-900/50 rounded-xl shadow-md">
+                <p class="text-sm font-semibold text-green-800 dark:text-green-200">CONCLUÍDAS</p>
+                <p id="completed-count" class="text-3xl font-bold text-green-900 dark:text-green-100">0</p>
+            </div>
+        </div>
+
+        <!-- Formulário de Adição de Tarefa -->
+        <section id="add-task-section" class="mb-10 p-6 bg-gray-50 dark:bg-gray-700 rounded-xl shadow-lg border border-gray-200 dark:border-gray-600">
+            <h2 class="text-2xl font-semibold mb-4 text-gray-800 dark:text-gray-100">Nova Tarefa</h2>
+            <form id="task-form" class="space-y-4">
+                <input
+                    type="text"
+                    id="task-title"
+                    placeholder="Título da Tarefa (Obrigatório)"
+                    required
+                    class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 input-focus"
+                >
+                <textarea
+                    id="task-description"
+                    placeholder="Descrição opcional..."
+                    rows="2"
+                    class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 input-focus"
+                ></textarea>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Data e Hora -->
+                    <div>
+                        <label for="task-schedule" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Agendamento (Opcional)</label>
+                        <input
+                            type="datetime-local"
+                            id="task-schedule"
+                            class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 input-focus"
+                        >
+                    </div>
+                    <!-- Prioridade -->
+                    <div>
+                        <label for="task-priority" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Prioridade</label>
+                        <select
+                            id="task-priority"
+                            required
+                            class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 appearance-none input-focus"
+                        >
+                            <option value="low">Baixa</option>
+                            <option value="medium" selected>Média</option>
+                            <option value="high">Alta</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button
+                    type="submit"
+                    id="submit-task-btn"
+                    class="w-full py-3 bg-primary hover:bg-primary-dark text-white font-semibold rounded-lg shadow-md transition duration-200 active:scale-[0.98] flex items-center justify-center space-x-2"
+                >
+                    <span id="submit-button-text">Adicionar Tarefa</span>
+                </button>
+            </form>
+            <p id="error-message" class="text-red-500 text-sm mt-3 hidden"></p>
+        </section>
+
+        <!-- Filtros e Pesquisa -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-semibold mb-4 text-gray-800 dark:text-gray-100">Filtros</h2>
+            <div class="flex flex-col gap-4">
+                <!-- Pesquisa -->
+                <input
+                    type="text"
+                    id="search-input"
+                    placeholder="🔍 Pesquisar por título, data ou prioridade..."
+                    class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 input-focus"
+                >
+
+                <!-- Botões de Filtro -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <button data-filter-type="status" data-filter-value="all" class="filter-btn py-2 px-4 rounded-lg font-medium shadow-sm transition-all duration-200 bg-primary text-white">TODAS</button>
+                    <button data-filter-type="status" data-filter-value="pending" class="filter-btn py-2 px-4 rounded-lg font-medium shadow-sm transition-all duration-200 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600">PENDENTES</button>
+                    <button data-filter-type="status" data-filter-value="completed" class="filter-btn py-2 px-4 rounded-lg font-medium shadow-sm transition-all duration-200 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600">CONCLUÍDAS</button>
+                    <button data-filter-type="priority" data-filter-value="all" class="filter-btn py-2 px-4 rounded-lg font-medium shadow-sm transition-all duration-200 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600">PRIORIDADE (TODAS)</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Lista de Tarefas -->
+        <section>
+            <h2 class="text-2xl font-semibold mb-4 text-gray-800 dark:text-gray-100">Minhas Tarefas</h2>
+            <ul id="task-list" class="space-y-4">
+                <li id="empty-state" class="text-center text-gray-500 dark:text-gray-400 p-6 border border-dashed border-gray-300 dark:border-gray-600 rounded-xl">
+                    Nenhuma tarefa agendada. Adicione a primeira!
+                </li>
+            </ul>
+        </section>
+
+    </div>
     
-<div class="w-full max-w-sm xl:max-w-4xl flex flex-col md:w1/2 md:m-auto gap-2 m-6 p-4 shadow-2xl rounded-2xl ">
-
-<h1 class=" text-5xl  text-green-500 font-black text-center">EsToDolist</h1>
-
-<div class="mt-4 flex ">
-
-</div>
-
-<hr class="">
-
-<div class=" mt-4 h-12">
-   <input type="text"
-  class=" border-2 p-2"
-  placeholder="🔖Filtro personalizado..."
-  >
- 
-  <button class="ml-60 border-2 p-2 bg-gray-400 rounded-lg hover:bg-gray-200 transition">TODAS</button>
-  <button class="ml-10 border-2 p-2 rounded-lg hover:bg-gray-200 transition">ATIVOS</button>
-  <button class="ml-10 border-2 p-2 rounded-lg hover:bg-gray-200 transition">EM ABERTO</button>
-  
-</div>
-
-<hr class="mt-2">
-
-<div class="flex gap-2 items-center">
-  <input class=" w-100 flex-grow p-3 rounded-xl border focus:ring-2 focus:ring-green-500 outline-none" placeholder="Adicione uma nova tarefa..." type="text">
-  <button
-          id="adicionar-btn"
-          class="flex-shrink-0 w-12 h-12 bg-green-500 hover:bg-green-600 text-white text-2xl font-bold rounded-lg transition duration-150 ease-in-out shadow-md"
-        >
-          +
-        </button>
-</div>
+    <!-- Modal (Substituto do alert/confirm) -->
+    <div id="modal-container" class="fixed inset-0 bg-black bg-opacity-50 dark:bg-opacity-70 z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-xl max-w-sm w-full transition-all duration-300 scale-95 opacity-0" id="modal-content">
+            <h3 id="modal-title" class="text-xl font-bold mb-3 text-gray-900 dark:text-gray-100"></h3>
+            <p id="modal-body" class="text-gray-700 dark:text-gray-300 mb-6"></p>
+            <div class="flex justify-end space-x-3">
+                <button id="modal-cancel-btn" class="py-2 px-4 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition">Cancelar</button>
+                <button id="modal-confirm-btn" class="py-2 px-4 bg-red-500 text-white rounded-lg hover:bg-red-600 transition">Confirmar</button>
+            </div>
+        </div>
+    </div>
 
 
-       <ul class="space-y-2 mt-4 m-8">
-         <li class="flex justify-between bg-gray-800 py-2 px-4 rounded-2xl">
-           <span class="text-xl text-red-500 line-through"> Estudar Biologia </span>
-           <button class="bg-red-700 py-2 px-4 rounded-xl">X</button>
-         </li>
-         <li class="flex justify-between bg-gray-800 py-2 px-4 rounded-2xl">
-           <span class="text-xl text-red-500 line-through"> Estudar Tailwind </span>
-           <button class="bg-red-700 py-2 px-4 rounded-xl">X</button>
-         </li>
-         <li class="flex justify-between bg-gray-800 py-2 px-4 rounded-2xl">
-           <span class="text-xl text-red-500 line-through"> Estudar História </span>
-           <button class="bg-red-700 py-2 px-4 rounded-xl">X</button>
-         </li>
-         <li class="flex justify-between bg-gray-800 py-2 px-4 rounded-2xl">
-           <span class="text-xl text-red-500 "> Estudar Matemática </span>
-           <button class="bg-red-700 py-2 px-4 rounded-xl">X</button>
-         </li>
-       </ul>
-       
-</div>
+    <script>
+        // === VARIÁVEIS GLOBAIS ===
+        const LS_KEY = 'EsToDoList_Tasks';
+        const LS_MODE = 'EsToDoList_Mode';
+
+        let tasks = [];
+        let editingTaskId = null;
+        let currentStatusFilter = 'all';
+        let currentPriorityFilter = 'all';
+        let currentSearchTerm = '';
+        
+        // Mapeamento de Prioridades para Ordenação e Cores
+        const PRIORITY_MAP = {
+            'high': { value: 3, label: 'Alta', color: 'bg-high-priority' },
+            'medium': { value: 2, label: 'Média', color: 'bg-medium-priority' },
+            'low': { value: 1, label: 'Baixa', color: 'bg-low-priority' }
+        };
+
+        // === SELETORES DOM ===
+        const taskList = document.getElementById('task-list');
+        const taskForm = document.getElementById('task-form');
+        const submitBtn = document.getElementById('submit-task-btn');
+        const submitBtnText = document.getElementById('submit-button-text');
+        const errorMsg = document.getElementById('error-message');
+        const emptyState = document.getElementById('empty-state');
+        const searchInput = document.getElementById('search-input');
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const pendingCount = document.getElementById('pending-count');
+        const completedCount = document.getElementById('completed-count');
+        const toggleModeBtn = document.getElementById('toggle-mode');
+        const modeIcon = document.getElementById('mode-icon');
+        const modeText = document.getElementById('mode-text');
+        
+        // Modal Selectors
+        const modalContainer = document.getElementById('modal-container');
+        const modalContent = document.getElementById('modal-content');
+        const modalTitle = document.getElementById('modal-title');
+        const modalBody = document.getElementById('modal-body');
+        const modalConfirmBtn = document.getElementById('modal-confirm-btn');
+        const modalCancelBtn = document.getElementById('modal-cancel-btn');
+
+
+        // === LÓGICA DE PERSISTÊNCIA (localStorage) ===
+
+        function saveTasks() {
+            localStorage.setItem(LS_KEY, JSON.stringify(tasks));
+        }
+
+        function loadTasks() {
+            const savedTasks = localStorage.getItem(LS_KEY);
+            if (savedTasks) {
+                tasks = JSON.parse(savedTasks);
+            }
+        }
+        
+        // === LÓGICA DO MODAL (Não usar alert/confirm) ===
+        
+        function showModal(title, body, confirmText, confirmCallback, cancelCallback = null) {
+            modalTitle.textContent = title;
+            modalBody.textContent = body;
+            modalConfirmBtn.textContent = confirmText;
+            
+            // Define o botão de confirmação
+            modalConfirmBtn.onclick = () => {
+                confirmCallback();
+                hideModal();
+            };
+            
+            // Define o botão de cancelamento
+            modalCancelBtn.onclick = () => {
+                if (cancelCallback) cancelCallback();
+                hideModal();
+            };
+
+            // Estilização do botão de confirmação para deletar
+            if (confirmText.toLowerCase().includes('excluir')) {
+                 modalConfirmBtn.classList.remove('bg-primary', 'hover:bg-primary-dark');
+                 modalConfirmBtn.classList.add('bg-red-500', 'hover:bg-red-600');
+            } else {
+                 modalConfirmBtn.classList.add('bg-primary', 'hover:bg-primary-dark');
+                 modalConfirmBtn.classList.remove('bg-red-500', 'hover:bg-red-600');
+            }
+            
+            modalContainer.classList.remove('hidden');
+            // Animação de entrada
+            setTimeout(() => {
+                modalContent.classList.remove('scale-95', 'opacity-0');
+            }, 10);
+        }
+
+        function hideModal() {
+            modalContent.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                modalContainer.classList.add('hidden');
+            }, 300);
+        }
+
+        // === RENDERIZAÇÃO E FILTRAGEM ===
+
+        function updateCounters() {
+            const pending = tasks.filter(t => t.status === 'pending').length;
+            const completed = tasks.filter(t => t.status === 'completed').length;
+            
+            pendingCount.textContent = pending;
+            completedCount.textContent = completed;
+        }
+
+        function sortTasks(taskList) {
+            // 1. Concluídas por último
+            // 2. Por Prioridade (Alta > Média > Baixa)
+            // 3. Por Data (Agendadas primeiro, as mais próximas)
+            return taskList.sort((a, b) => {
+                // 1. Status (Completed last)
+                if (a.status === 'completed' && b.status !== 'completed') return 1;
+                if (a.status !== 'completed' && b.status === 'completed') return -1;
+                
+                // 2. Priority (High first)
+                const priorityA = PRIORITY_MAP[a.priority]?.value || 0;
+                const priorityB = PRIORITY_MAP[b.priority]?.value || 0;
+                if (priorityB !== priorityA) return priorityB - priorityA;
+
+                // 3. Schedule (Soonest first, but unscheduled last)
+                const dateA = a.schedule ? new Date(a.schedule).getTime() : Infinity;
+                const dateB = b.schedule ? new Date(b.schedule).getTime() : Infinity;
+                
+                return dateA - dateB;
+            });
+        }
+
+        function renderTasks() {
+            // 1. Filtragem
+            let filteredTasks = tasks.filter(task => {
+                // Filtro por Status
+                if (currentStatusFilter !== 'all' && task.status !== currentStatusFilter) {
+                    return false;
+                }
+                
+                // Filtro por Prioridade
+                if (currentPriorityFilter !== 'all' && task.priority !== currentPriorityFilter) {
+                    return false;
+                }
+                
+                // Pesquisa em tempo real (Título, Descrição, Data ou Prioridade)
+                if (currentSearchTerm) {
+                    const term = currentSearchTerm.toLowerCase();
+                    const priorityLabel = PRIORITY_MAP[task.priority]?.label.toLowerCase() || '';
+                    const dateString = task.schedule ? new Date(task.schedule).toLocaleDateString('pt-BR') : '';
+
+                    return (
+                        task.title.toLowerCase().includes(term) ||
+                        task.description.toLowerCase().includes(term) ||
+                        priorityLabel.includes(term) ||
+                        dateString.includes(term)
+                    );
+                }
+                
+                return true;
+            });
+
+            // 2. Ordenação
+            filteredTasks = sortTasks(filteredTasks);
+
+            // 3. Renderização
+            taskList.innerHTML = '';
+            
+            if (filteredTasks.length === 0) {
+                emptyState.classList.remove('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+                
+                filteredTasks.forEach(task => {
+                    taskList.appendChild(createTaskElement(task));
+                });
+            }
+
+            // 4. Atualiza Contadores e Botões de Filtro
+            updateCounters();
+            updateFilterButtons();
+        }
+
+        function createTaskElement(task) {
+            const li = document.createElement('li');
+            li.id = `task-${task.id}`;
+            li.dataset.id = task.id;
+            li.className = `flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 rounded-xl shadow-lg border-l-4 task-enter cursor-pointer ${task.status === 'completed' ? 'border-primary-dark opacity-70' : 'border-' + PRIORITY_MAP[task.priority].color + ' hover:shadow-xl'} bg-gray-100 dark:bg-gray-700 transition duration-300`;
+            
+            // Prioridade Badge
+            const priorityBadge = `<span class="inline-block px-2 py-0.5 text-xs font-semibold rounded-full text-white ${PRIORITY_MAP[task.priority].color}">${PRIORITY_MAP[task.priority].label}</span>`;
+            
+            // Agendamento
+            let scheduleHTML = '';
+            if (task.schedule) {
+                const scheduleDate = new Date(task.schedule);
+                const now = new Date();
+                const isDueSoon = scheduleDate > now && (scheduleDate.getTime() - now.getTime() < 24 * 60 * 60 * 1000); // Em 24 horas
+
+                const dateStr = scheduleDate.toLocaleDateString('pt-BR');
+                const timeStr = scheduleDate.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+                scheduleHTML = `
+                    <div class="flex items-center text-xs font-medium ${isDueSoon ? 'text-red-500 dark:text-red-400 font-bold' : 'text-gray-500 dark:text-gray-400'} mt-1">
+                        <!-- Ícone de Relógio -->
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l3 3a1 1 0 001.414-1.414L11 9.586V6z" clip-rule="evenodd" />
+                        </svg>
+                        ${dateStr} ${timeStr}
+                        ${isDueSoon ? ' <span class="ml-2 text-red-500 dark:text-red-400 animate-pulse">! URGENTE</span>' : ''}
+                    </div>
+                `;
+            }
+
+            // Conteúdo principal
+            const contentHTML = `
+                <div class="flex-1 min-w-0 pr-4" onclick="toggleStatus(${task.id})">
+                    <div class="flex items-center space-x-3 mb-1">
+                        <input type="checkbox" ${task.status === 'completed' ? 'checked' : ''} 
+                            class="h-5 w-5 rounded border-gray-300 text-primary focus:ring-primary toggle-checkbox"
+                            aria-label="Marcar como concluída"
+                            onclick="event.stopPropagation(); toggleStatus(${task.id});"
+                        >
+                        <h3 class="text-lg font-semibold ${task.status === 'completed' ? 'line-through text-gray-500 dark:text-gray-400' : 'text-gray-800 dark:text-gray-100'} task-title-${task.id}">${task.title}</h3>
+                        ${priorityBadge}
+                    </div>
+                    ${task.description ? `<p class="text-sm text-gray-600 dark:text-gray-300 mb-2 truncate max-w-full">${task.description}</p>` : ''}
+                    ${scheduleHTML}
+                </div>
+            `;
+            
+            // Botões de Ação
+            const actionsHTML = `
+                <div class="flex space-x-2 mt-3 sm:mt-0 flex-shrink-0">
+                    <button onclick="startEdit(${task.id})" class="text-blue-500 hover:text-blue-600 dark:hover:text-blue-400 p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition" aria-label="Editar">
+                        <!-- Ícone de Lápis -->
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 pointer-events-none" viewBox="0 0 20 20" fill="currentColor"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zm-4.72 2.72a1 1 0 010 1.414l-7.74 7.74a.5.5 0 01-.502.146l-2.5-1.125a.5.5 0 01-.146-.502l7.74-7.74a1 1 0 011.414 0zM10 15a1 1 0 100 2 1 1 0 000-2z" /></svg>
+                    </button>
+                    <button onclick="confirmDelete(${task.id})" class="text-red-500 hover:text-red-600 dark:hover:text-red-400 p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition" aria-label="Excluir">
+                        <!-- Ícone de Lixeira -->
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 pointer-events-none" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 10-2 0v6a1 1 0 102 0V8z" clip-rule="evenodd" /></svg>
+                    </button>
+                </div>
+            `;
+
+            li.innerHTML = contentHTML + actionsHTML;
+            return li;
+        }
+
+        function updateFilterButtons() {
+            filterBtns.forEach(btn => {
+                btn.classList.remove('bg-primary', 'text-white', 'hover:bg-primary-dark');
+                btn.classList.add('bg-gray-200', 'dark:bg-gray-700', 'text-gray-800', 'dark:text-gray-200', 'hover:bg-gray-300', 'dark:hover:bg-gray-600');
+                
+                const type = btn.dataset.filterType;
+                const value = btn.dataset.filterValue;
+
+                if (type === 'status' && value === currentStatusFilter) {
+                    btn.classList.remove('bg-gray-200', 'dark:bg-gray-700', 'text-gray-800', 'dark:text-gray-200', 'hover:bg-gray-300', 'dark:hover:bg-gray-600');
+                    btn.classList.add('bg-primary', 'text-white', 'hover:bg-primary-dark');
+                } else if (type === 'priority' && value === currentPriorityFilter) {
+                    btn.classList.remove('bg-gray-200', 'dark:bg-gray-700', 'text-gray-800', 'dark:text-gray-200', 'hover:bg-gray-300', 'dark:hover:bg-gray-600');
+                    btn.classList.add('bg-primary', 'text-white', 'hover:bg-primary-dark');
+                }
+            });
+        }
+
+
+        // === FUNÇÕES CRUD ===
+
+        function addTask(e) {
+            e.preventDefault();
+            const titleInput = document.getElementById('task-title');
+            const descInput = document.getElementById('task-description');
+            const scheduleInput = document.getElementById('task-schedule');
+            const priorityInput = document.getElementById('task-priority');
+
+            const title = titleInput.value.trim();
+            if (!title) {
+                showError('O título da tarefa é obrigatório.');
+                return;
+            }
+            showError(''); // Limpa o erro
+
+            const newTask = {
+                id: editingTaskId || Date.now(),
+                title: title,
+                description: descInput.value.trim(),
+                schedule: scheduleInput.value || null, // Salva como string ISO ou null
+                priority: priorityInput.value,
+                status: 'pending' // Nova tarefa é sempre pendente
+            };
+
+            if (editingTaskId) {
+                // Modo Edição
+                const index = tasks.findIndex(t => t.id === editingTaskId);
+                if (index !== -1) {
+                    // Preserva o status original da tarefa
+                    newTask.status = tasks[index].status; 
+                    tasks[index] = newTask;
+                }
+                editingTaskId = null;
+                submitBtnText.textContent = 'Adicionar Tarefa';
+            } else {
+                // Modo Adicionar
+                tasks.push(newTask);
+            }
+
+            saveTasks();
+            renderTasks();
+            taskForm.reset();
+            
+            // Adiciona a classe de animação para o item recém-adicionado
+            const newestLi = document.getElementById(`task-${newTask.id}`);
+            if(newestLi && !editingTaskId) {
+                 setTimeout(() => newestLi.classList.remove('task-enter'), 300);
+            }
+        }
+
+        function toggleStatus(id) {
+            const task = tasks.find(t => t.id === id);
+            if (task) {
+                task.status = task.status === 'pending' ? 'completed' : 'pending';
+                saveTasks();
+                renderTasks();
+            }
+        }
+
+        function confirmDelete(id) {
+            const task = tasks.find(t => t.id === id);
+            if (!task) return;
+
+            showModal(
+                "Confirmar Exclusão",
+                `Tem certeza que deseja excluir a tarefa "${task.title}"?`,
+                "Excluir",
+                () => deleteTask(id)
+            );
+        }
+
+        function deleteTask(id) {
+            tasks = tasks.filter(t => t.id !== id);
+            saveTasks();
+            
+            // Animação de remoção:
+            const li = document.getElementById(`task-${id}`);
+            if (li) {
+                li.style.opacity = '0';
+                li.style.transform = 'translateX(-100%)';
+                li.style.transition = 'all 0.3s ease-out';
+                setTimeout(() => {
+                    li.remove();
+                    renderTasks(); // Re-renderiza para atualizar o estado vazio
+                }, 300);
+            } else {
+                 renderTasks();
+            }
+        }
+        
+        function startEdit(id) {
+            const task = tasks.find(t => t.id === id);
+            if (!task) return;
+
+            // 1. Preenche o formulário com os dados da tarefa
+            document.getElementById('task-title').value = task.title;
+            document.getElementById('task-description').value = task.description;
+            document.getElementById('task-schedule').value = task.schedule || '';
+            document.getElementById('task-priority').value = task.priority;
+
+            // 2. Entra no modo de edição
+            editingTaskId = id;
+            submitBtnText.textContent = 'Salvar Edição';
+            
+            // 3. Rola até o formulário
+            document.getElementById('add-task-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+
+        // === LÓGICA DE DARK MODE ===
+
+        function applyMode(mode) {
+            if (mode === 'dark') {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem(LS_MODE, 'dark');
+                modeIcon.textContent = '☀️';
+                modeText.textContent = 'Claro';
+            } else {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem(LS_MODE, 'light');
+                modeIcon.textContent = '🌙';
+                modeText.textContent = 'Escuro';
+            }
+        }
+
+        function loadMode() {
+            // 1. Tenta carregar do localStorage
+            let mode = localStorage.getItem(LS_MODE);
+            
+            // 2. Se não houver, detecta a preferência do sistema
+            if (!mode) {
+                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    mode = 'dark';
+                } else {
+                    mode = 'light';
+                }
+            }
+            
+            applyMode(mode);
+        }
+
+        function toggleMode() {
+            const currentMode = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+            applyMode(currentMode === 'dark' ? 'light' : 'dark');
+        }
+
+        // === UTILITÁRIOS ===
+        
+        function showError(message) {
+            if (message) {
+                errorMsg.textContent = message;
+                errorMsg.classList.remove('hidden');
+            } else {
+                errorMsg.classList.add('hidden');
+            }
+        }
+
+
+        // === INICIALIZAÇÃO ===
+
+        window.onload = function() {
+            // Carrega o modo de cor e o listener de mudança do sistema
+            loadMode();
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+                // Atualiza se o usuário não tiver definido manualmente no localStorage
+                if (!localStorage.getItem(LS_MODE)) {
+                    applyMode(e.matches ? 'dark' : 'light');
+                }
+            });
+
+            // Carrega tarefas e renderiza
+            loadTasks();
+            renderTasks();
+
+            // Configura Listeners de Eventos
+            taskForm.addEventListener('submit', addTask);
+
+            searchInput.addEventListener('input', (e) => {
+                currentSearchTerm = e.target.value;
+                renderTasks();
+            });
+
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const type = e.target.dataset.filterType;
+                    const value = e.target.dataset.filterValue;
+
+                    // Lógica para alternar filtros
+                    if (type === 'status') {
+                        currentStatusFilter = (value === currentStatusFilter && value !== 'all') ? 'all' : value;
+                    } else if (type === 'priority') {
+                        currentPriorityFilter = (value === currentPriorityFilter && value !== 'all') ? 'all' : value;
+                    }
+
+                    renderTasks();
+                });
+            });
+            
+            toggleModeBtn.addEventListener('click', toggleMode);
+        };
+        
+        // Exporta funções para serem chamadas diretamente no HTML (onclick)
+        window.toggleStatus = toggleStatus;
+        window.confirmDelete = confirmDelete;
+        window.startEdit = startEdit;
+
+    </script>
 </body>
 </html>

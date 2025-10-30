@@ -1,0 +1,55 @@
+/* ===============================
+   🌞 Modo Claro
+   =============================== */
+body {
+  background: linear-gradient(to bottom right, #f0fdf4, #f3f4f6);
+  color: #1f2937;
+  transition: background 0.3s ease, color 0.3s ease;
+  font-family: sans-serif;
+}
+
+.container {
+  background-color: #ffffff;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.card {
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+input, button {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* ===============================
+   🌑 Modo Escuro
+   =============================== */
+body.dark-mode {
+  background: linear-gradient(to bottom right, #1f2937, #111827);
+  color: #f3f4f6;
+}
+
+body.dark-mode .container {
+  background-color: #111827;
+  color: #f3f4f6;
+}
+
+body.dark-mode .card {
+  background-color: #1f2937;
+  border: 1px solid #374151;
+  color: #f3f4f6;
+}
+
+body.dark-mode input {
+  background-color: #374151;
+  color: #f3f4f6;
+  border-color: #4b5563;
+}
+
+body.dark-mode button {
+  background-color: #4b5563;
+  color: #f3f4f6;
+  border-color: #6b7280;
+}

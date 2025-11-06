@@ -59,6 +59,7 @@ Abra o arquivo index.html no seu navegador de preferência.
 E pronto! Você já pode começar a organizar suas tarefas.
 
 🧑‍💻 Autor
+
 Feito por Pietro
 
 GitHub

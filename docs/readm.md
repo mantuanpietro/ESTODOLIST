@@ -1,8 +1,6 @@
 EsToDoList
 Um aplicativo web simples, responsivo e elegante para gerenciamento de tarefas (To-Do List). O projeto foi focado na prática de manipulação do DOM com JavaScript puro e estilização moderna com Tailwind CSS.
 
-!(https://user-images.githubusercontent.com/username/repo/caminho-para-sua-imagem.png) (Recomendo que você tire um screenshot do seu projeto e substitua o link acima)
-
 📝 Sobre o Projeto
 O EsToDoList foi desenvolvido como um exercício prático para consolidar habilidades fundamentais de desenvolvimento front-end. O objetivo era criar uma aplicação "To-Do List" completa, partindo do zero, que fosse funcional, visualmente agradável e performática, sem o uso de frameworks JavaScript (como React ou Vue).
 
@@ -46,11 +44,12 @@ localStorage API: API nativa do navegador para armazenamento local e persistênc
 Como este é um projeto puramente front-end (estático), não há necessidade de instalação de dependências ou build steps.
 
 Clone este repositório:
+https://github.com/mantuanpietro/ESTODOLIST.git
 
 Bash
 
-git clone https://github.com/seu-usuario/EsToDoList.git
-Navegue até o diretório do projeto:
+Navegue até o projeto:
+https://vercel.com/mantuanpietros-projects/estodolist/C1eQH7kPaZ11Cdaa4bub9hBJJjWa
 
 Bash
 
